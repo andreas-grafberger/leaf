@@ -33,7 +33,7 @@ def create_jsons_for(user_files, which_set, max_users, include_hierarchy):
         file_dir = os.path.join(subdir, f)
         with open(file_dir, 'r') as inf:
             data = json.load(inf)
-        
+
         users.append(u)
         if include_hierarchy:
             hierarchies.append(h)
@@ -151,10 +151,10 @@ if (args.user):
             # and enable reproducibility
             data = json.load(inf, object_pairs_hook=OrderedDict)
         if include_hierarchy:
-            user_files.extend([(u, h, ns, f) for (u, h, ns) in 
+            user_files.extend([(u, h, ns, f) for (u, h, ns) in
                 zip(data['users'], data['hierarchies'], data['num_samples'])])
         else:
-            user_files.extend([(u, ns, f) for (u, ns) in 
+            user_files.extend([(u, ns, f) for (u, ns) in
                 zip(data['users'], data['num_samples'])])
 
     # randomly sample from user_files to pick training set users
@@ -213,9 +213,9 @@ else:
                     train_indices = [i for i in range(num_train_samples)]
                     test_indices = [i for i in range(num_train_samples + 80 - 1, curr_num_samples)]
                 else:
-                    train_indices = rng.sample(indices, num_train_samples)                    
+                    train_indices = rng.sample(indices, num_train_samples)
                     test_indices = [i for i in range(curr_num_samples) if i not in train_indices]
-                
+
                 if len(train_indices) >= 1 and len(test_indices) >= 1:
                     user_indices.append(i)
                     num_samples_train.append(num_train_samples)
@@ -225,7 +225,7 @@ else:
 
                     train_blist = [False for _ in range(curr_num_samples)]
                     test_blist = [False for _ in range(curr_num_samples)]
-                    
+
                     for j in train_indices:
                         train_blist[j] = True
                     for j in test_indices:
@@ -249,10 +249,10 @@ else:
         all_data_test = {}
         all_data_test['users'] = users
         all_data_test['num_samples'] = num_samples_test
-        all_data_test['user_data'] = user_data_test 
+        all_data_test['user_data'] = user_data_test
 
         if include_hierarchy:
-            hierarchies = [data['hierarchies'][i] for i in user_indices] 
+            hierarchies = [data['hierarchies'][i] for i in user_indices]
             all_data_train['hierarchies'] = hierarchies
             all_data_test['hierarchies'] = hierarchies
 
@@ -266,3 +266,36 @@ else:
         print('writing %s' % file_name_test)
         with open(ouf_dir_test, 'w') as outfile:
             json.dump(all_data_test, outfile)
+
+        # Additionally save as individual file for each user
+        if args.name == "shakespeare":
+            print("-" * 20)
+            print(f"Saving user train/ test data to individual files for fedless experiments")
+            print("-" * 20)
+            for i, user in enumerate(users):
+                single_user_data_train = {}
+                single_user_data_train['users'] = users[i:i+1]
+                single_user_data_train['num_samples'] = num_samples_train[i:i+1]
+                single_user_data_train['user_data'] = {user: user_data_train[user]}
+                if include_hierarchy:
+                    single_user_data_train['hierarchies'] = hierarchies[i:i+1]
+
+                single_user_data_test = {}
+                single_user_data_test['users'] = users[i:i+1]
+                single_user_data_test['num_samples'] = num_samples_test[i:i+1]
+                single_user_data_test['user_data'] = {user: user_data_test[user]}
+                if include_hierarchy:
+                    single_user_data_test['hierarchies'] = hierarchies[i:i+1]
+
+                user_file_name_train = 'user_%s_%s_train_%s.json' % (i, (f[:-5]), arg_label)
+                user_file_name_test = 'user_%s_%s_test_%s.json' % (i, (f[:-5]), arg_label)
+                user_ouf_dir_train = os.path.join(dir, 'train', user_file_name_train)
+                user_ouf_dir_test = os.path.join(dir, 'test', user_file_name_test)
+                print('writing %s' % user_file_name_train)
+                with open(user_ouf_dir_train, 'w') as outfile:
+                    json.dump(single_user_data_train, outfile)
+                print('writing %s' % user_file_name_test)
+                with open(user_ouf_dir_test, 'w') as outfile:
+                    json.dump(single_user_data_test, outfile)
+
+
