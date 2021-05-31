@@ -268,7 +268,7 @@ else:
             json.dump(all_data_test, outfile)
 
         # Additionally save as individual file for each user
-        if args.name == "shakespeare":
+        if args.name in ["shakespeare", "femnist"]:
             print("-" * 20)
             print(f"Saving user train/ test data to individual files for fedless experiments")
             print("-" * 20)
