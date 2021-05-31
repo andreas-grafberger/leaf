@@ -19,7 +19,7 @@ sys.path.append(utils_dir)
 
 import util
 
-MAX_WRITERS = 1  # max number of writers per json file.
+MAX_WRITERS = 100  # max number of writers per json file.
 
 
 def relabel_class(c):
