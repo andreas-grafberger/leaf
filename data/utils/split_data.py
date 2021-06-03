@@ -181,7 +181,7 @@ if (args.user):
 
 else:
     print('splitting data by sample')
-
+    fedless_shard_index = 0
     for f in files:
         file_dir = os.path.join(subdir, f)
         with open(file_dir, 'r') as inf:
@@ -287,8 +287,8 @@ else:
                 if include_hierarchy:
                     single_user_data_test['hierarchies'] = hierarchies[i:i+1]
 
-                user_file_name_train = 'user_%s_%s_train_%s.json' % (i, (f[:-5]), arg_label)
-                user_file_name_test = 'user_%s_%s_test_%s.json' % (i, (f[:-5]), arg_label)
+                user_file_name_train = 'user_%s_train_%s.json' % (fedless_shard_index, arg_label)
+                user_file_name_test = 'user_%s_test_%s.json' % (fedless_shard_index, arg_label)
                 user_ouf_dir_train = os.path.join(dir, 'train', user_file_name_train)
                 user_ouf_dir_test = os.path.join(dir, 'test', user_file_name_test)
                 print('writing %s' % user_file_name_train)
@@ -297,5 +297,7 @@ else:
                 print('writing %s' % user_file_name_test)
                 with open(user_ouf_dir_test, 'w') as outfile:
                     json.dump(single_user_data_test, outfile)
+
+                fedless_shard_index += 1
 
 
